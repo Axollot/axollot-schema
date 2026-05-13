@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+package axollot.gateway.v1;
+
+message Packet {
+    string request_id = 1; 
+
+    oneof payload {
+        RegRequest reg_request = 2;
+        RegResponse reg_response = 3;
+        VerificationRequest verification_request = 4;
+        VerificationResponse verification_response = 5;
+
+        AuthRequest auth_request = 6;
+        AuthResponse auth_response = 7;
+        ResumeSessionRequest resume_request = 8;
+        ResumeSessionResponse resume_response = 9;
+
+        SendMessageRequest send_message = 10;
+        MessageEvent message_event = 11;
+
+        Ping ping = 12;
+        Pong pong = 13;
+
+        GetGuildInvitationRequest get_guild_invitation = 14;
+        GetGuildInvitationResponse get_guild_invitation_response = 15;
+        JoinGuildRequest join_guild = 16;
+        JoinGuildResponse join_guild_response = 17;
+        
+        GetGuildListRequest get_guild_list = 18;
+        GuildListResponse guild_list_response = 19;
+        GetGuildChannelsRequest get_guild_channels = 20;
+        GuildChannelsResponse guild_channels_response = 21;
+
+        GetPeopleListRequest get_people_list = 22;
+        PeopleListResponse people_list_response = 23;
+        GetPersonInfoRequest get_person_info = 24;
+        PersonInfoResponse person_info_response = 25;
+    } 
+}
+
+message RegRequest {
+    string email = 1;
+    string username = 2;
+    string public_username = 3;
+    string password = 4;
+}
+
+message RegResponse {
+    bool success = 1;
+    string error_message = 2;
+}
+
+message VerificationRequest {
+    string code = 1;
+}
+
+message VerificationResponse {
+    bool success = 1;
+    string error_message = 2;
+}
+
+message AuthRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message AuthResponse {
+    bool success = 1;
+    string error_message = 2;
+    string user_id = 3;
+    string session_token = 4;
+}
+
+message ResumeSessionRequest {
+    string session_token = 1; 
+    int64 last_received_msg_id = 2; 
+}
+
+message ResumeSessionResponse {
+    bool success = 1;
+    string error_message = 2;
+    string user_id = 3;
+    repeated MessageEvent missed_messages = 4;
+}
+
+message SendMessageRequest {
+    string message_id = 1;
+    string channel_id = 2;
+    string text = 3;
+    optional string reply_to_msg_id = 4;
+}
+
+message MessageEvent {
+    string message_id = 1;
+    string sender_id = 2;
+    string channel_id = 3;
+    string text = 4;
+    int64 timestamp = 5;
+}
+
+message Ping {
+  int64 client_time = 1; //UNIX timestamp!!!!!!артем(алексей/руслан)!!!!!!! не дай бог не заметишь
+}
+
+message Pong {
+  int64 client_time = 1; //UNIX timestamp
+  int64 server_time = 2; //зе сейм
+}
+
+message GetGuildInvitationRequest {
+    string invite_code = 1;
+}
+
+message GuildInvitationResponse {
+    string name = 1;
+    string description = 2;
+    string guild_id = 3;
+    string icon_url = 4;
+}
+
+message JoinGuildRequest {
+    string guild_id = 1;
+}
+
+message JoinGuildResponse {
+    bool success = 1;
+    string error_message = 2;
+    string guild_id = 3;
+    string guild_name = 4;
+}
+
+message GetGuildListRequest {}
+
+message GuildListResponse {
+    repeated Guild guilds = 1;
+}
+
+message Guild {
+    string id = 1;
+    string name = 2;
+    string icon_url = 3;
+}
+
+message GetGuildChannelsRequest {
+    string guild_id = 1;
+}
+
+message GuildChannelsResponse {
+    repeated Channel channels = 1;
+}
+
+enum ChannelType {
+    CHANNEL_TYPE_TEXT_UNSPECIFIED = 0;
+    CHANNEL_TYPE_VOICE = 1;
+}
+
+message Channel {
+    string id = 1;
+    string guild_id = 2;
+    string name = 3;
+    ChannelType type = 4;
+}
+
+message GetPeopleListRequest {}
+
+message PeopleListResponse {
+    repeated Person people = 1;
+}
+
+message GetPersonInfoRequest {
+    string person_id = 1;
+}
+
+message PersonInfoResponse {
+    Person person = 1;
+    string error_message = 2;
+}
+
+message Person {
+    string id = 1;
+    string public_username = 2;
+    string avatar_url = 3;
+}
