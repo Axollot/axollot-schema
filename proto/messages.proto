@@ -23,7 +23,7 @@ message Packet {
         Pong pong = 13;
 
         GetGuildInvitationRequest get_guild_invitation = 14;
-        GetGuildInvitationResponse get_guild_invitation_response = 15;
+        GuildInvitationResponse get_guild_invitation_response = 15;
         JoinGuildRequest join_guild = 16;
         JoinGuildResponse join_guild_response = 17;
         
