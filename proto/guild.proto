@@ -17,8 +17,9 @@ service GuildService {
 }
 
 enum ChannelType {
-    CHANNEL_TYPE_TEXT_UNSPECIFIED = 0;
+    CHANNEL_TYPE_TEXT = 0;
     CHANNEL_TYPE_VOICE = 1;
+    CHANNEL_TYPE_DM = 2;
 }
 
 message Guild {
