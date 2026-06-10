@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package axollot.messaging.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// gRPC — для запросов типа "дай историю".
+// Real-time доставка новых сообщений идёт через WebSocket (MessageEvent в gateway.proto).
+service MessagingService {
+    rpc GetChannelHistory(GetChannelHistoryRequest) returns (GetChannelHistoryResponse);
+    rpc GetPinnedMessages(GetPinnedMessagesRequest) returns (GetPinnedMessagesResponse);
+    rpc PinMessage(PinMessageRequest) returns (PinMessageResponse);
+    rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+    rpc EditMessage(EditMessageRequest) returns (EditMessageResponse);
+}
+
+message SendMessage {
+    string message_id = 1;
+    string channel_id = 2;
+    string text = 3;
+    optional string reply_to_msg_id = 4;
+}
+
+message MessageEvent {
+    string message_id = 1;
+    string sender_id = 2;
+    string channel_id = 3;
+    string text = 4;
+    google.protobuf.Timestamp created_at = 5;
+    optional string reply_to_msg_id = 6;
+    optional google.protobuf.Timestamp edited_at = 7;
+}
+
+// --- История ---
+
+message GetChannelHistoryRequest {
+    string channel_id = 1;
+    optional string before_message_id = 2;
+    int32 limit = 3;
+}
+
+message GetChannelHistoryResponse {
+    repeated MessageEvent messages = 1;
+    bool has_more = 2;
+}
+
+// --- Пины ---
+
+message GetPinnedMessagesRequest {
+    string channel_id = 1;
+}
+
+message GetPinnedMessagesResponse {
+    repeated MessageEvent messages = 1;
+}
+
+message PinMessageRequest {
+    string channel_id = 1;
+    string message_id = 2;
+}
+
+message PinMessageResponse {
+    bool success = 1;
+    string error_message = 2;
+}
+
+// --- Удаление / редактирование ---
+
+message DeleteMessageRequest {
+    string channel_id = 1;
+    string message_id = 2;
+}
+
+message DeleteMessageResponse {
+    bool success = 1;
+    string error_message = 2;
+}
+
+message EditMessageRequest {
+    string channel_id = 1;
+    string message_id = 2;
+    string new_text = 3;
+}
+
+message EditMessageResponse {
+    bool success = 1;
+    string error_message = 2;
+}

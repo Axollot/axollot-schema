@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package axollot.people.v1;
+
+import "common.proto";
+
+service PeopleService {
+    rpc GetFriendList(GetFriendListRequest) returns (FriendListResponse);
+    rpc GetPersonInfo(GetPersonInfoRequest) returns (PersonInfoResponse);
+    rpc AddFriend(AddFriendRequest) returns (AddFriendResponse);
+    rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse);
+    rpc AcceptFriend(AcceptFriendRequest) returns (AcceptFriendResponse);
+    rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
+    rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
+    rpc OpenDM(OpenDMRequest) returns (OpenDMResponse);
+    rpc GetDMList(GetDMListRequest) returns (DMListResponse);
+}
+
+enum FriendStatus {
+    FRIEND_STATUS_NONE_UNSPECIFIED = 0;
+    FRIEND_STATUS_PENDING_OUTGOING = 1;
+    FRIEND_STATUS_PENDING_INCOMING = 2;
+    FRIEND_STATUS_ACCEPTED = 3;
+    FRIEND_STATUS_BLOCKED = 4;
+}
+
+enum OnlineStatus {
+    ONLINE_STATUS_OFFLINE_UNSPECIFIED = 0;
+    ONLINE_STATUS_ONLINE = 1;
+    ONLINE_STATUS_IDLE = 2;
+    ONLINE_STATUS_DND = 3;
+}
+
+message Person {
+    string id = 1;
+    string public_username = 2;
+    string avatar_url = 3;
+    FriendStatus friend_status = 4;
+    OnlineStatus online_status = 5;
+}
+
+// --- Списки ---
+
+message GetFriendListRequest {}
+
+message FriendListResponse {
+    repeated Person people = 1;
+}
+
+message GetPersonInfoRequest {
+    string person_id = 1;
+}
+
+message PersonInfoResponse {
+    Person person = 1;
+}
+
+// --- Друзья ---
+
+message AddFriendRequest {
+    string target_username = 1;
+}
+
+message AddFriendResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message AcceptFriendRequest {
+    string person_id = 1;
+}
+
+message AcceptFriendResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message RemoveFriendRequest {
+    string person_id = 1;
+}
+
+message RemoveFriendResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+// --- Блокировка ---
+
+message BlockUserRequest {
+    string person_id = 1;
+}
+
+message BlockUserResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message UnblockUserRequest {
+    string person_id = 1;
+}
+
+message UnblockUserResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message OpenDMRequest {
+    string target_user_id = 1;
+}
+
+message OpenDMResponse {
+    axollot.common.v1.Status status = 1;
+    string channel_id = 2;
+}
+
+message GetDMListRequest {}
+
+message DMListResponse {
+    repeated DMChannel channels = 1;
+}
+
+message DMChannel {
+    string channel_id = 1;
+    Person other_user = 2;
+    int32 unread_count = 3;
+}
