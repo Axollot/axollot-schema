@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package axollot.gateway.v1;
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "messaging.proto";
+import "guild.proto";
+import "people.proto";
+
+// WebSocket — ТОЛЬКО real-time события и хендшейк.
+// Всё что request/response (история, списки, CRUD) — через gRPC сервисы.
+
+message Handshake {
+    string session_token = 1;
+    optional int64 last_received_msg_id = 2;
+}
+
+message HandshakeAck {
+    axollot.common.v1.Status status = 1;
+    string user_id = 2;
+    repeated axollot.messaging.v1.MessageEvent missed_messages = 3;
+}
+
+message Ping {
+    google.protobuf.Timestamp client_time = 1;
+}
+
+message Pong {
+    google.protobuf.Timestamp client_time = 1;
+    google.protobuf.Timestamp server_time = 2;
+}
+
+// --- Real-time события от сервера ---
+
+message TypingEvent {
+    string channel_id = 1;
+    string user_id = 2;
+}
+
+message PresenceEvent {
+    string user_id = 1;
+    axollot.people.v1.OnlineStatus status = 2;
+}
+
+message MessageDeletedEvent {
+    string channel_id = 1;
+    string message_id = 2;
+}
+
+message MessageEditedEvent {
+    string channel_id = 1;
+    axollot.messaging.v1.MessageEvent message = 2;
+}
+
+message FriendRequestEvent {
+    axollot.people.v1.Person from = 1;
+}
+
+message GuildMemberJoinedEvent {
+    string guild_id = 1;
+    axollot.people.v1.Person member = 2;
+}
+
+message GuildMemberLeftEvent {
+    string guild_id = 1;
+    string user_id = 2;
+}
+
+// Конверт для WebSocket — теперь только real-time
+message Packet {
+    string request_id = 1;
+
+    oneof payload {
+        // Соединение
+        Handshake handshake = 2;
+        HandshakeAck handshake_ack = 3;
+        Ping ping = 4;
+        Pong pong = 5;
+
+        // Сообщения (отправка + входящие)
+        axollot.messaging.v1.SendMessage send_message = 10;
+        axollot.messaging.v1.MessageEvent message_event = 11;
+        MessageDeletedEvent message_deleted = 12;
+        MessageEditedEvent message_edited = 13;
+        TypingEvent typing = 14;
+
+        // Присутствие
+        PresenceEvent presence = 20;
+
+        // Друзья
+        FriendRequestEvent friend_request = 30;
+
+        // Гильдии
+        GuildMemberJoinedEvent guild_member_joined = 40;
+        GuildMemberLeftEvent guild_member_left = 41;
+    }
+}

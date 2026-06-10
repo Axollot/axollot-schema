@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package axollot.auth.v1;
+
+import "common.proto";
+
+// gRPC сервис — вызывается ДО установки WebSocket соединения.
+// Клиент получает session_token и дальше использует его 
+// в Handshake при подключении к gateway.
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+}
+
+message LoginRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    axollot.common.v1.Status status = 1;
+    string user_id = 2;
+    string session_token = 3;
+}
+
+message RegisterRequest {
+    string email = 1;
+    string username = 2;
+    string public_username = 3;
+    string password = 4;
+}
+
+message RegisterResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message VerifyEmailRequest {
+    string code = 1;
+}
+
+message VerifyEmailResponse {
+    axollot.common.v1.Status status = 1;
+}

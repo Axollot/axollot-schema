@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package axollot.guild.v1;
+
+import "common.proto";
+
+service GuildService {
+    rpc GetGuildList(GetGuildListRequest) returns (GuildListResponse);
+    rpc GetGuildChannels(GetGuildChannelsRequest) returns (GuildChannelsResponse);
+    rpc GetGuildInvite(GetGuildInviteRequest) returns (GuildInviteResponse);
+    rpc JoinGuild(JoinGuildRequest) returns (JoinGuildResponse);
+    rpc LeaveGuild(LeaveGuildRequest) returns (LeaveGuildResponse);
+    rpc CreateGuild(CreateGuildRequest) returns (CreateGuildResponse);
+    rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
+    rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+    rpc CreateInviteCode(CreateInviteCodeRequest) returns (CreateInviteCodeResponse);
+}
+
+enum ChannelType {
+    CHANNEL_TYPE_TEXT_UNSPECIFIED = 0;
+    CHANNEL_TYPE_VOICE = 1;
+}
+
+message Guild {
+    string id = 1;
+    string name = 2;
+    string icon_url = 3;
+    string description = 4;
+    string owner_id = 5;
+    int32 member_count = 6;
+}
+
+message Channel {
+    string id = 1;
+    string guild_id = 2;
+    string name = 3;
+    ChannelType type = 4;
+    int32 position = 5;
+}
+
+// --- Списки ---
+
+message GetGuildListRequest {}
+
+message GuildListResponse {
+    repeated Guild guilds = 1;
+}
+
+message GetGuildChannelsRequest {
+    string guild_id = 1;
+}
+
+message GuildChannelsResponse {
+    repeated Channel channels = 1;
+}
+
+// --- Инвайты ---
+
+message GetGuildInviteRequest {
+    string invite_code = 1;
+}
+
+message GuildInviteResponse {
+    Guild guild = 1;
+}
+
+message CreateInviteCodeRequest {
+    string guild_id = 1;
+    optional int32 max_uses = 2;
+    optional int32 expires_in_hours = 3;
+}
+
+message CreateInviteCodeResponse {
+    axollot.common.v1.Status status = 1;
+    string invite_code = 2;
+}
+
+// --- Вступление / выход ---
+
+message JoinGuildRequest {
+    string guild_id = 1;
+}
+
+message JoinGuildResponse {
+    axollot.common.v1.Status status = 1;
+    Guild guild = 2;
+}
+
+message LeaveGuildRequest {
+    string guild_id = 1;
+}
+
+message LeaveGuildResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+// --- Создание ---
+
+message CreateGuildRequest {
+    string name = 1;
+    optional string description = 2;
+}
+
+message CreateGuildResponse {
+    axollot.common.v1.Status status = 1;
+    Guild guild = 2;
+}
+
+message CreateChannelRequest {
+    string guild_id = 1;
+    string name = 2;
+    ChannelType type = 3;
+}
+
+message CreateChannelResponse {
+    axollot.common.v1.Status status = 1;
+    Channel channel = 2;
+}
+
+message DeleteChannelRequest {
+    string channel_id = 1;
+}
+
+message DeleteChannelResponse {
+    axollot.common.v1.Status status = 1;
+}
