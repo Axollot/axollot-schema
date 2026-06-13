@@ -22,6 +22,7 @@ message LoginResponse {
     axollot.common.v1.Status status = 1;
     string user_id = 2;
     string session_token = 3;
+    string public_username = 4;
 }
 
 message RegisterRequest {
