@@ -1,68 +1,114 @@
 CREATE TABLE users (
-    UUID a PRIMARY KEY, /* UUIDv7 created on server for pure performance */
-    email TEXT NOT NULL UNIQUE, /* plain text, not cyphered */
-    login TEXT NOT NULL UNIQUE,
-    username TEXT NOT NULL UNIQUE,
-    pass TEXT NOT NULL, /* Blake 2b or SHA256 hashed password with salt */
-    salt integer NOT NULL,
-    is_online bit NOT NULL,
-    last_online TIMESTAMP,
-    avatar_link TEXT /* link to the avatar being on another server */
+                       uuid            UUID PRIMARY KEY,                -- UUIDv7, генерируется на сервере
+                       email           TEXT NOT NULL UNIQUE,
+                       login           TEXT NOT NULL UNIQUE,
+                       username        TEXT NOT NULL UNIQUE,             -- public_username
+                       pass            TEXT NOT NULL,                    -- Argon2 хэш (соль внутри)
+                       last_online     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                       avatar_link     TEXT,
+                       created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-
+-- Гильдии (серверы)
 CREATE TABLE guilds (
-    UUID TEXT PRIMARY KEY, /* UUIDv7 */
-    name TEXT NOT NULL,
-    description TEXT NOT NULL,
-    avatar_link TEXT,
-    owner_UUID TEXT FOREIGN KEY,
-    user_UUIDs TEXT REFERENCES
+                        id              UUID PRIMARY KEY,                -- UUIDv7
+                        name            TEXT NOT NULL,
+                        description     TEXT NOT NULL DEFAULT '',
+                        icon_url        TEXT,
+                        owner_id        UUID NOT NULL REFERENCES users(uuid),
+                        created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-
-CREATE TABLE chat_groups (
-    UUID TEXT PRIMARY KEY,
-    guild_UUID TEXT FOREIGN KEY,
-    name TEXT NOT NULL
+-- Каналы: и гильдовые и DM в одной таблице
+-- type: 0 = text, 1 = voice, 2 = dm
+CREATE TABLE channels (
+                          id              UUID PRIMARY KEY,                -- UUIDv7
+                          guild_id        UUID REFERENCES guilds(id) ON DELETE CASCADE,  -- NULL для DM
+                          name            TEXT,                            -- NULL для DM
+                          type            SMALLINT NOT NULL DEFAULT 0,
+                          position        INT NOT NULL DEFAULT 0,
+                          created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-
-CREATE TABLE guild_chat (
-    UUID TEXT PRIMARY KEY,
-    group_UUID TEXT FOREIGN KEY,
-    kind bit NOT NULL
+-- Участники канала
+-- Для DM — 2 записи, для гильдовых каналов — опционально
+-- (можно управлять доступом через роли)
+CREATE TABLE channel_members (
+                                 channel_id      UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+                                 user_id         UUID NOT NULL REFERENCES users(uuid) ON DELETE CASCADE,
+                                 joined_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                                 PRIMARY KEY (channel_id, user_id)
 );
 
-
-CREATE TABLE dm_chat (
-    UUID TEXT PRIMARY KEY
+-- Участники гильдии
+CREATE TABLE guild_members (
+                               guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+                               user_id         UUID NOT NULL REFERENCES users(uuid) ON DELETE CASCADE,
+                               role_id         UUID,                            -- NULL = обычный участник
+                               joined_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                               PRIMARY KEY (guild_id, user_id)
 );
 
-
-CREATE TABLE guild_messages (
-    UUID TEXT PRIMARY KEY, /* UUIDv7 */
-    plain_text TEXT NOT NULL,
-    chat_UUID TEXT FOREIGN KEY,
-    sender_UUID TEXT NOT NULL,
-    replied_to_UUID TEXT,
-    sent_at timestamp
-);
-
-
-CREATE TABLE dm_messages (
-    UUID TEXT PRIMARY KEY, /* UUIDv7 */
-    plain_text TEXT NOT NULL,
-    chat_UUID TEXT FOREIGN KEY,
-    sender_UUID TEXT NOT NULL,
-    replied_to_UUID TEXT,
-    sent_at timestamp
-);
-
-
+-- Роли
 CREATE TABLE roles (
-    UUID TEXT PRIMARY KEY,
-    guild_UUID TEXT FOREIGN KEY,
-    flags integer NOT NULL,
-    user_UUIDs TEXT REFERENCES
+                       id              UUID PRIMARY KEY,
+                       guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+                       name            TEXT NOT NULL,
+                       color           INT,                             -- hex цвет
+                       permissions     BIGINT NOT NULL DEFAULT 0,       -- битовая маска прав
+                       position        INT NOT NULL DEFAULT 0,          -- приоритет роли
+                       created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Сообщения — одна таблица для всех каналов
+CREATE TABLE messages (
+                          id              UUID PRIMARY KEY,                -- UUIDv7 (сортируется по времени)
+                          channel_id      UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+                          sender_id       UUID NOT NULL REFERENCES users(uuid),
+                          text            TEXT NOT NULL,
+                          reply_to_msg_id UUID,
+                          created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                          edited_at       TIMESTAMPTZ
+);
+
+-- Друзья
+-- status: 'pending', 'accepted', 'blocked'
+CREATE TABLE friends (
+                         user_id         UUID NOT NULL REFERENCES users(uuid) ON DELETE CASCADE,
+                         friend_id       UUID NOT NULL REFERENCES users(uuid) ON DELETE CASCADE,
+                         status          TEXT NOT NULL DEFAULT 'pending',
+                         created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                         PRIMARY KEY (user_id, friend_id)
+);
+
+-- Инвайты в гильдии
+CREATE TABLE guild_invites (
+                               code            TEXT PRIMARY KEY,
+                               guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+                               created_by      UUID NOT NULL REFERENCES users(uuid),
+                               max_uses        INT,                             -- NULL = безлимит
+                               uses            INT NOT NULL DEFAULT 0,
+                               expires_at      TIMESTAMPTZ,                     -- NULL = бессрочный
+                               created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Быстрая загрузка истории: последние сообщения канала
+CREATE INDEX idx_messages_channel_time ON messages (channel_id, created_at DESC);
+
+-- Поиск каналов юзера (для списка DM)
+CREATE INDEX idx_channel_members_user ON channel_members (user_id);
+
+-- Поиск гильдий юзера
+CREATE INDEX idx_guild_members_user ON guild_members (user_id);
+
+-- Каналы гильдии
+CREATE INDEX idx_channels_guild ON channels (guild_id) WHERE guild_id IS NOT NULL;
+
+-- Роли гильдии
+CREATE INDEX idx_roles_guild ON roles (guild_id);
+
+-- Друзья юзера
+CREATE INDEX idx_friends_user ON friends (friend_id, status);
+
+-- Инвайты гильдии
+CREATE INDEX idx_guild_invites_guild ON guild_invites (guild_id);
