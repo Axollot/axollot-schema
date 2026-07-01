@@ -3,6 +3,7 @@ syntax = "proto3";
 package axollot.people.v1;
 
 import "common.proto";
+import "google/protobuf/timestamp.proto";
 
 service PeopleService {
     rpc GetFriendList(GetFriendListRequest) returns (FriendListResponse);

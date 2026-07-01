@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package axollot.common.v1;
 
-import "google/protobuf/timestamp.proto";
-
 // Используется везде где нужен стандартный ответ "ок / не ок"
 message Status {
     bool success = 1;
