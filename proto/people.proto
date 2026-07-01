@@ -118,4 +118,6 @@ message DMChannel {
     string channel_id = 1;
     Person other_user = 2;
     int32 unread_count = 3;
+    string last_message_text = 4;
+    google.protobuf.Timestamp last_message_at = 5;
 }
