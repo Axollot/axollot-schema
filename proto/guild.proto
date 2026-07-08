@@ -20,6 +20,7 @@ enum ChannelType {
     CHANNEL_TYPE_TEXT = 0;
     CHANNEL_TYPE_VOICE = 1;
     CHANNEL_TYPE_DM = 2;
+    CHANNEL_TYPE_CATEGORY = 3;
 }
 
 message Guild {
@@ -37,6 +38,7 @@ message Channel {
     string name = 3;
     ChannelType type = 4;
     int32 position = 5;
+    optional string parent_id = 6;
 }
 
 // --- Списки ---
@@ -111,6 +113,7 @@ message CreateChannelRequest {
     string guild_id = 1;
     string name = 2;
     ChannelType type = 3;
+    optional string parent_id = 4;
 }
 
 message CreateChannelResponse {

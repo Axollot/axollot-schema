@@ -45,7 +45,7 @@ message PresenceEvent {
 
 message MessageDeletedEvent {
     string channel_id = 1;
-    string message_id = 2;
+    repeated string message_id = 2;
 }
 
 message MessageEditedEvent {
@@ -65,6 +65,19 @@ message GuildMemberJoinedEvent {
 message GuildMemberLeftEvent {
     string guild_id = 1;
     string user_id = 2;
+}
+
+message ChannelCreatedEvent {
+    axollot.guild.v1.Channel channel = 1;
+}
+
+message ChannelDeletedEvent {
+    string guild_id = 1;
+    string channel_id = 2;
+}
+
+message ChannelUpdatedEvent {
+    axollot.guild.v1.Channel channel = 1;
 }
 
 // Конверт для WebSocket — теперь только real-time
@@ -94,5 +107,9 @@ message Packet {
         // Гильдии
         GuildMemberJoinedEvent guild_member_joined = 40;
         GuildMemberLeftEvent guild_member_left = 41;
+
+        ChannelCreatedEvent channel_created = 42;
+        ChannelDeletedEvent channel_deleted = 43;
+        ChannelUpdatedEvent channel_updated = 44;
     }
 }
