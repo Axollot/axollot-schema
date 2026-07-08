@@ -1,1 +1,0 @@
-SELECT username, is_online, last_online, avatar_link FROM users WHERE UUID = /* SEARCHED UUID */;

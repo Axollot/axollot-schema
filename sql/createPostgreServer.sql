@@ -24,6 +24,7 @@ CREATE TABLE guilds (
 CREATE TABLE channels (
                           id              UUID PRIMARY KEY,                -- UUIDv7
                           guild_id        UUID REFERENCES guilds(id) ON DELETE CASCADE,  -- NULL для DM
+                          parent_id       UUID REFERENCES channels(id) ON DELETE CASCADE,
                           name            TEXT,                            -- NULL для DM
                           type            SMALLINT NOT NULL DEFAULT 0,
                           position        INT NOT NULL DEFAULT 0,
@@ -112,3 +113,5 @@ CREATE INDEX idx_friends_user ON friends (friend_id, status);
 
 -- Инвайты гильдии
 CREATE INDEX idx_guild_invites_guild ON guild_invites (guild_id);
+
+CREATE INDEX idx_channels_parent ON channels (parent_id) WHERE parent_id IS NOT NULL;
