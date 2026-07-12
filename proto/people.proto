@@ -38,6 +38,7 @@ message Person {
     string avatar_url = 3;
     FriendStatus friend_status = 4;
     OnlineStatus online_status = 5;
+    string username = 6;
 }
 
 // --- Списки ---
