@@ -84,7 +84,7 @@ CREATE TABLE friends (
 
 -- Инвайты в гильдии
 CREATE TABLE guild_invites (
-    id              UUID PRIMARY KEY DEFAULT uuidv7(),
+    id              UUID PRIMARY KEY,
     code            TEXT UNIQUE NOT NULL,
     guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
     created_by      UUID NOT NULL REFERENCES users(uuid),
