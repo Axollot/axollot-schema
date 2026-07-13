@@ -51,7 +51,8 @@ message AcceptInviteRequest {
 }
 
 message AcceptInviteResponse {
-  string guild_id = 1;
+  axollot.common.v1.Status status = 1;
+  string guild_id = 2;
 }
 
 service InviteService {
