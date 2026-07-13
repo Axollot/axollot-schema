@@ -7,13 +7,10 @@ import "common.proto";
 service GuildService {
     rpc GetGuildList(GetGuildListRequest) returns (GuildListResponse);
     rpc GetGuildChannels(GetGuildChannelsRequest) returns (GuildChannelsResponse);
-    rpc GetGuildInvite(GetGuildInviteRequest) returns (GuildInviteResponse);
-    rpc JoinGuild(JoinGuildRequest) returns (JoinGuildResponse);
     rpc LeaveGuild(LeaveGuildRequest) returns (LeaveGuildResponse);
     rpc CreateGuild(CreateGuildRequest) returns (CreateGuildResponse);
     rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
     rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
-    rpc CreateInviteCode(CreateInviteCodeRequest) returns (CreateInviteCodeResponse);
 }
 
 enum ChannelType {
@@ -55,27 +52,6 @@ message GetGuildChannelsRequest {
 
 message GuildChannelsResponse {
     repeated Channel channels = 1;
-}
-
-// --- Инвайты ---
-
-message GetGuildInviteRequest {
-    string invite_code = 1;
-}
-
-message GuildInviteResponse {
-    Guild guild = 1;
-}
-
-message CreateInviteCodeRequest {
-    string guild_id = 1;
-    optional int32 max_uses = 2;
-    optional int32 expires_in_hours = 3;
-}
-
-message CreateInviteCodeResponse {
-    axollot.common.v1.Status status = 1;
-    string invite_code = 2;
 }
 
 // --- Вступление / выход ---
