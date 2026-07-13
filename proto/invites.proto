@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package axollot.invites;
+package axollot.invites.v1;
 
 import "common.proto";
 
