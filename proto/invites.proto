@@ -47,7 +47,7 @@ message ResolveInviteResponse {
 }
 
 message AcceptInviteRequest {
-  string invite_id = 1;
+  string code = 1;
 }
 
 message AcceptInviteResponse {
