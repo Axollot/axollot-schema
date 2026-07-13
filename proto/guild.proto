@@ -99,6 +99,7 @@ message CreateChannelResponse {
 
 message DeleteChannelRequest {
     string channel_id = 1;
+    string guild_id = 2;
 }
 
 message DeleteChannelResponse {
