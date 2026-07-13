@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package axollot.invites;
+
+import "common.proto";
+
+message Invite {
+  string invite_id = 1;
+  string code = 2;
+  string guild_id = 3;
+  string creator_id = 4;
+  int32 uses = 5;
+  optional int32 max_uses = 6;
+  optional int64 expires_at = 7;
+  string full_url = 8;
+}
+
+// Превью инвайта
+message InvitePreview {
+  string invite_id = 1;
+  string code = 2;
+  string guild_id = 3;
+  string guild_name = 4;
+  optional string guild_avatar_url = 5;
+  optional string guild_banner_url = 6;
+  int32 member_count = 7;
+  int32 online_count = 8;
+}
+
+message CreateInviteRequest {
+  string guild_id = 1;
+  optional int32 max_uses = 2;
+  optional int64 expires_at = 3;
+  optional string vanity_code = 4;
+}
+
+message CreateInviteResponse {
+  Invite invite = 1;
+}
+
+message ResolveInviteRequest {
+  string code = 1;
+}
+
+message ResolveInviteResponse {
+  InvitePreview preview = 1;
+}
+
+message AcceptInviteRequest {
+  string invite_id = 1;
+}
+
+message AcceptInviteResponse {
+  string guild_id = 1;
+}
+
+service InviteService {
+  rpc CreateInvite(CreateInviteRequest) returns (CreateInviteResponse);
+  rpc ResolveInvite(ResolveInviteRequest) returns (ResolveInviteResponse);
+  rpc AcceptInvite(AcceptInviteRequest) returns (AcceptInviteResponse);
+}

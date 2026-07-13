@@ -84,13 +84,14 @@ CREATE TABLE friends (
 
 -- Инвайты в гильдии
 CREATE TABLE guild_invites (
-                               code            TEXT PRIMARY KEY,
-                               guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-                               created_by      UUID NOT NULL REFERENCES users(uuid),
-                               max_uses        INT,                             -- NULL = безлимит
-                               uses            INT NOT NULL DEFAULT 0,
-                               expires_at      TIMESTAMPTZ,                     -- NULL = бессрочный
-                               created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id              UUID PRIMARY KEY DEFAULT uuidv7(),
+    code            TEXT UNIQUE NOT NULL,
+    guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    created_by      UUID NOT NULL REFERENCES users(uuid),
+    max_uses        INT,                             -- NULL = безлимит
+    uses            INT NOT NULL DEFAULT 0,
+    expires_at      TIMESTAMPTZ,                     -- NULL = бессрочный
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Быстрая загрузка истории: последние сообщения канала
