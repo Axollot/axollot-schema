@@ -60,9 +60,3 @@ message AcceptInviteResponse {
   axollot.common.v1.Status status = 1;
   string guild_id = 2;
 }
-
-service InviteService {
-  rpc CreateInvite(CreateInviteRequest) returns (CreateInviteResponse);
-  rpc ResolveInvite(ResolveInviteRequest) returns (ResolveInviteResponse);
-  rpc AcceptInvite(AcceptInviteRequest) returns (AcceptInviteResponse);
-}
