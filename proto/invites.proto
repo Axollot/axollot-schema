@@ -4,6 +4,12 @@ package axollot.invites.v1;
 
 import "common.proto";
 
+service InviteService {
+  rpc CreateInvite(CreateInviteRequest) returns (CreateInviteResponse);
+  rpc ResolveInvite(ResolveInviteRequest) returns (ResolveInviteResponse);
+  rpc AcceptInvite(AcceptInviteRequest) returns (AcceptInviteResponse);
+}
+
 message Invite {
   string invite_id = 1;
   string code = 2;
