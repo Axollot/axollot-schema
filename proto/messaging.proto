@@ -29,6 +29,7 @@ message MessageEvent {
     google.protobuf.Timestamp created_at = 5;
     optional string reply_to_msg_id = 6;
     optional google.protobuf.Timestamp edited_at = 7;
+    string sender_username = 8;
 }
 
 // --- История ---
