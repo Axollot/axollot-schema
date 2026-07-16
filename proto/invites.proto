@@ -42,6 +42,7 @@ message CreateInviteRequest {
 
 message CreateInviteResponse {
   Invite invite = 1;
+  axollot.common.v1.Status status = 2;
 }
 
 message ResolveInviteRequest {
@@ -50,6 +51,7 @@ message ResolveInviteRequest {
 
 message ResolveInviteResponse {
   InvitePreview preview = 1;
+  axollot.common.v1.Status status = 2;
 }
 
 message AcceptInviteRequest {
