@@ -43,9 +43,3 @@ message VerifyEmailRequest {
 message VerifyEmailResponse {
     axollot.common.v1.Status status = 1;
 }
-
-enum Platform {
-    PLATFORM_UNSPECIFIED = 0;
-    PLATFORM_ANDROID = 1;
-    PLATFORM_IOS = 2;
-}
