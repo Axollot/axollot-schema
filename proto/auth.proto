@@ -11,7 +11,6 @@ service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc Register(RegisterRequest) returns (RegisterResponse);
     rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
-    rpc RegisterFcmToken(RegisterFcmTokenRequest) returns (RegisterFcmTokenResponse);
 }
 
 message LoginRequest {
@@ -49,13 +48,4 @@ enum Platform {
     PLATFORM_UNSPECIFIED = 0;
     PLATFORM_ANDROID = 1;
     PLATFORM_IOS = 2;
-}
-
-message RegisterFcmTokenRequest {
-    string token = 1;
-    Platform platform = 2;
-}
-
-message RegisterFcmTokenResponse {
-    axollot.common.v1.Status status = 1;
 }

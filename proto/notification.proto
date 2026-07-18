@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package axollot.notifications.v1;
+
+import "common.proto";
+
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  PLATFORM_ANDROID = 1;
+  PLATFORM_IOS = 2;
+}
+
+message RegisterFcmTokenRequest {
+  string token = 1;
+  Platform platform = 2;
+}
+
+message RegisterFcmTokenResponse {
+  axollot.common.v1.Status status = 1;
+}
+
+service NotificationService {
+  rpc RegisterFcmToken(RegisterFcmTokenRequest) returns (RegisterFcmTokenResponse);
+}
