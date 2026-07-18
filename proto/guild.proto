@@ -1,107 +1,127 @@
 syntax = "proto3";
 
-package axollot.guild.v1;
+package axollot.gateway.v1;
 
+import "google/protobuf/timestamp.proto";
 import "common.proto";
+import "messaging.proto";
+import "guild.proto";
+import "people.proto";
 
-service GuildService {
-    rpc GetGuildList(GetGuildListRequest) returns (GuildListResponse);
-    rpc GetGuildChannels(GetGuildChannelsRequest) returns (GuildChannelsResponse);
-    rpc LeaveGuild(LeaveGuildRequest) returns (LeaveGuildResponse);
-    rpc CreateGuild(CreateGuildRequest) returns (CreateGuildResponse);
-    rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
-    rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+// WebSocket — ТОЛЬКО real-time события и хендшейк.
+// Всё что request/response (история, списки, CRUD) — через gRPC сервисы.
+
+message Handshake {
+    string session_token = 1;
+    optional int64 last_received_msg_id = 2;
 }
 
-enum ChannelType {
-    CHANNEL_TYPE_TEXT = 0;
-    CHANNEL_TYPE_VOICE = 1;
-    CHANNEL_TYPE_DM = 2;
-    CHANNEL_TYPE_CATEGORY = 3;
-}
-
-message Guild {
-    string id = 1;
-    string name = 2;
-    string icon_url = 3;
-    string description = 4;
-    string owner_id = 5;
-    int32 member_count = 6;
-}
-
-message Channel {
-    string id = 1;
-    string guild_id = 2;
-    string name = 3;
-    ChannelType type = 4;
-    int32 position = 5;
-    optional string parent_id = 6;
-}
-
-// --- Списки ---
-
-message GetGuildListRequest {}
-
-message GuildListResponse {
-    repeated Guild guilds = 1;
-}
-
-message GetGuildChannelsRequest {
-    string guild_id = 1;
-}
-
-message GuildChannelsResponse {
-    repeated Channel channels = 1;
-}
-
-// --- Вступление / выход ---
-
-message JoinGuildRequest {
-    string guild_id = 1;
-}
-
-message JoinGuildResponse {
+message HandshakeAck {
     axollot.common.v1.Status status = 1;
-    Guild guild = 2;
+    string user_id = 2;
+    repeated axollot.messaging.v1.MessageEvent missed_messages = 3;
 }
 
-message LeaveGuildRequest {
-    string guild_id = 1;
+message Ping {
+    google.protobuf.Timestamp client_time = 1;
 }
 
-message LeaveGuildResponse {
-    axollot.common.v1.Status status = 1;
+message Pong {
+    google.protobuf.Timestamp client_time = 1;
+    google.protobuf.Timestamp server_time = 2;
 }
 
-// --- Создание ---
+// --- Real-time события от сервера ---
 
-message CreateGuildRequest {
-    string name = 1;
-    optional string description = 2;
-}
-
-message CreateGuildResponse {
-    axollot.common.v1.Status status = 1;
-    Guild guild = 2;
-}
-
-message CreateChannelRequest {
-    string guild_id = 1;
-    string name = 2;
-    ChannelType type = 3;
-    optional string parent_id = 4;
-}
-
-message CreateChannelResponse {
-    axollot.common.v1.Status status = 1;
-    Channel channel = 2;
-}
-
-message DeleteChannelRequest {
+message TypingEvent {
     string channel_id = 1;
-    string guild_id = 2;
+    string user_id = 2;
 }
 
-message DeleteChannelResponse {
-    axollot.common.v1.Status status = 1;
+message PresenceEvent {
+    string user_id = 1;
+    axollot.people.v1.OnlineStatus status = 2;
+}
+
+message MessageDeletedEvent {
+    string channel_id = 1;
+    repeated string message_id = 2;
+}
+
+message MessageEditedEvent {
+    string channel_id = 1;
+    axollot.messaging.v1.MessageEvent message = 2;
+}
+
+message FriendRequestEvent {
+    axollot.people.v1.Person from = 1;
+}
+
+message GuildMemberJoinedEvent {
+    string guild_id = 1;
+    axollot.people.v1.Person member = 2;
+}
+
+message GuildMemberLeftEvent {
+    string guild_id = 1;
+    string user_id = 2;
+}
+
+message ChannelCreatedEvent {
+    axollot.guild.v1.Channel channel = 1;
+}
+
+message ChannelDeletedEvent {
+    string guild_id = 1;
+    string channel_id = 2;
+}
+
+message ChannelUpdatedEvent {
+    axollot.guild.v1.Channel channel = 1;
+}
+
+enum AppLifecycleState {
+    APP_LIFECYCLE_STATE_UNSPECIFIED = 0;
+    APP_LIFECYCLE_STATE_FOREGROUND = 1;
+    APP_LIFECYCLE_STATE_BACKGROUND = 2;
+}
+
+message AppStateEvent {
+    AppLifecycleState state = 1;
+}
+
+// Конверт для WebSocket — теперь только real-time
+message Packet {
+    string request_id = 1;
+
+    oneof payload {
+        // Соединение
+        Handshake handshake = 2;
+        HandshakeAck handshake_ack = 3;
+        Ping ping = 4;
+        Pong pong = 5;
+
+        // Сообщения (отправка + входящие)
+        axollot.messaging.v1.SendMessage send_message = 10;
+        axollot.messaging.v1.MessageEvent message_event = 11;
+        MessageDeletedEvent message_deleted = 12;
+        MessageEditedEvent message_edited = 13;
+        TypingEvent typing = 14;
+
+        // Присутствие
+        PresenceEvent presence = 20;
+
+        // Друзья
+        FriendRequestEvent friend_request = 30;
+
+        // Гильдии
+        GuildMemberJoinedEvent guild_member_joined = 40;
+        GuildMemberLeftEvent guild_member_left = 41;
+
+        ChannelCreatedEvent channel_created = 42;
+        ChannelDeletedEvent channel_deleted = 43;
+        ChannelUpdatedEvent channel_updated = 44;
+
+        AppStateEvent app_state = 45;
+    }
 }
