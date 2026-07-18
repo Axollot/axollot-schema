@@ -43,14 +43,16 @@ message PresenceEvent {
     axollot.people.v1.OnlineStatus status = 2;
 }
 
-message MessageDeletedEvent {
-    string channel_id = 1;
-    repeated string message_id = 2;
+message MessageEditedEvent {
+    string message_id = 1;
+    string channel_id = 2;
+    string new_text = 3;
+    google.protobuf.Timestamp edited_at = 4;
 }
 
-message MessageEditedEvent {
-    string channel_id = 1;
-    axollot.messaging.v1.MessageEvent message = 2;
+message MessageDeletedEvent {
+    string message_id = 1;
+    string channel_id = 2;
 }
 
 message FriendRequestEvent {
@@ -123,5 +125,6 @@ message Packet {
         ChannelUpdatedEvent channel_updated = 44;
 
         AppStateEvent app_state = 45;
+
     }
 }

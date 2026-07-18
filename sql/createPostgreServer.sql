@@ -129,6 +129,15 @@ CREATE TABLE channel_permission_overrides
     deny       BIGINT NOT NULL DEFAULT 0
 );
 
+CREATE TABLE pinned_messages
+(
+    channel_id UUID        NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+    message_id UUID        NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
+    pinned_by  UUID        NOT NULL REFERENCES users (uuid),
+    pinned_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (channel_id, message_id)
+);
+
 -- Быстрая загрузка истории: последние сообщения канала
 CREATE INDEX idx_messages_channel_time ON messages (channel_id, created_at DESC);
 
