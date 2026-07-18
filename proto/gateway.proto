@@ -80,6 +80,16 @@ message ChannelUpdatedEvent {
     axollot.guild.v1.Channel channel = 1;
 }
 
+enum AppLifecycleState {
+    APP_LIFECYCLE_STATE_UNSPECIFIED = 0;
+    APP_LIFECYCLE_STATE_FOREGROUND = 1;
+    APP_LIFECYCLE_STATE_BACKGROUND = 2;
+}
+
+message AppStateEvent {
+    AppLifecycleState state = 1;
+}
+
 // Конверт для WebSocket — теперь только real-time
 message Packet {
     string request_id = 1;
@@ -111,5 +121,7 @@ message Packet {
         ChannelCreatedEvent channel_created = 42;
         ChannelDeletedEvent channel_deleted = 43;
         ChannelUpdatedEvent channel_updated = 44;
+
+        AppStateEvent app_state = 45;
     }
 }
