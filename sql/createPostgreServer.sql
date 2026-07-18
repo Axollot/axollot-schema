@@ -88,10 +88,18 @@ CREATE TABLE guild_invites (
     code            TEXT UNIQUE NOT NULL,
     guild_id        UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
     created_by      UUID NOT NULL REFERENCES users(uuid),
-    max_uses        INT,                             -- NULL = безлимит
+    max_uses        INT,
     uses            INT NOT NULL DEFAULT 0,
-    expires_at      TIMESTAMPTZ,                     -- NULL = бессрочный
+    expires_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE fcm_tokens (
+    user_id UUID NOT NULL REFERENCES users(uuid) ON DELETE CASCADE,
+    token TEXT NOT NULL,
+    platform SMALLINT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, token)
 );
 
 -- Быстрая загрузка истории: последние сообщения канала
