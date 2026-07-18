@@ -7,10 +7,19 @@ import "common.proto";
 service GuildService {
     rpc GetGuildList(GetGuildListRequest) returns (GuildListResponse);
     rpc GetGuildChannels(GetGuildChannelsRequest) returns (GuildChannelsResponse);
-    rpc LeaveGuild(LeaveGuildRequest) returns (LeaveGuildResponse);
     rpc CreateGuild(CreateGuildRequest) returns (CreateGuildResponse);
     rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
     rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+    rpc LeaveGuild(LeaveGuildRequest) returns (LeaveGuildResponse);
+
+    rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse);
+    rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse);
+    rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse);
+    rpc GetGuildRoles(GetGuildRolesRequest) returns (GetGuildRolesResponse);
+    rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+    rpc UnassignRole(UnassignRoleRequest) returns (UnassignRoleResponse);
+    rpc GetMemberRoles(GetMemberRolesRequest) returns (GetMemberRolesResponse);
+    rpc GetGuildMembers(GetGuildMembersRequest) returns (GetGuildMembersResponse);
 }
 
 enum ChannelType {
@@ -104,4 +113,100 @@ message DeleteChannelRequest {
 
 message DeleteChannelResponse {
     axollot.common.v1.Status status = 1;
+}
+
+message Role {
+    string id = 1;
+    string guild_id = 2;
+    string name = 3;
+    optional int32 color = 4;
+    int64 permissions = 5;
+    int32 position = 6;
+}
+
+message CreateRoleRequest {
+    string guild_id = 1;
+    string name = 2;
+    int64 permissions = 3;
+    optional int32 color = 4;
+}
+
+message CreateRoleResponse {
+    axollot.common.v1.Status status = 1;
+    Role role = 2;
+}
+
+message UpdateRoleRequest {
+    string role_id = 1;
+    optional string name = 2;
+    optional int64 permissions = 3;
+    optional int32 color = 4;
+    optional int32 position = 5;
+}
+
+message UpdateRoleResponse {
+    axollot.common.v1.Status status = 1;
+    Role role = 2;
+}
+
+message DeleteRoleRequest {
+    string role_id = 1;
+}
+
+message DeleteRoleResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message GetGuildRolesRequest {
+    string guild_id = 1;
+}
+
+message GetGuildRolesResponse {
+    repeated Role roles = 1;
+}
+
+message AssignRoleRequest {
+    string guild_id = 1;
+    string user_id = 2;
+    string role_id = 3;
+}
+
+message AssignRoleResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message UnassignRoleRequest {
+    string guild_id = 1;
+    string user_id = 2;
+    string role_id = 3;
+}
+
+message UnassignRoleResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message GetMemberRolesRequest {
+    string guild_id = 1;
+    string user_id = 2;
+}
+
+message GetMemberRolesResponse {
+    repeated Role roles = 1;
+}
+
+message GetGuildMembersRequest {
+    string guild_id = 1;
+}
+
+message GuildMember {
+    string user_id = 1;
+    string username = 2;
+    string public_username = 3;
+    string avatar_url = 4;
+    int32 online_status = 5;
+    repeated Role roles = 6;
+}
+
+message GetGuildMembersResponse {
+    repeated GuildMember members = 1;
 }
