@@ -3,9 +3,8 @@ syntax = "proto3";
 package axollot.messaging.v1;
 
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
-// gRPC — для запросов типа "дай историю".
-// Real-time доставка новых сообщений идёт через WebSocket (MessageEvent в gateway.proto).
 service MessagingService {
     rpc GetChannelHistory(GetChannelHistoryRequest) returns (GetChannelHistoryResponse);
     rpc GetPinnedMessages(GetPinnedMessagesRequest) returns (GetPinnedMessagesResponse);
@@ -32,8 +31,6 @@ message MessageEvent {
     string sender_username = 8;
 }
 
-// --- История ---
-
 message GetChannelHistoryRequest {
     string channel_id = 1;
     optional string before_message_id = 2;
@@ -44,8 +41,6 @@ message GetChannelHistoryResponse {
     repeated MessageEvent messages = 1;
     bool has_more = 2;
 }
-
-// --- Пины ---
 
 message GetPinnedMessagesRequest {
     string channel_id = 1;
@@ -61,11 +56,8 @@ message PinMessageRequest {
 }
 
 message PinMessageResponse {
-    bool success = 1;
-    string error_message = 2;
+    axollot.common.v1.Status status = 1;
 }
-
-// --- Удаление / редактирование ---
 
 message DeleteMessageRequest {
     string channel_id = 1;
@@ -73,8 +65,7 @@ message DeleteMessageRequest {
 }
 
 message DeleteMessageResponse {
-    bool success = 1;
-    string error_message = 2;
+    axollot.common.v1.Status status = 1;
 }
 
 message EditMessageRequest {
@@ -84,6 +75,6 @@ message EditMessageRequest {
 }
 
 message EditMessageResponse {
-    bool success = 1;
-    string error_message = 2;
+    axollot.common.v1.Status status = 1;
+    optional MessageEvent message = 2;
 }
