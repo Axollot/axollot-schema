@@ -15,6 +15,7 @@ service PeopleService {
     rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
     rpc OpenDM(OpenDMRequest) returns (OpenDMResponse);
     rpc GetDMList(GetDMListRequest) returns (DMListResponse);
+    rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
 }
 
 enum FriendStatus {
@@ -122,4 +123,12 @@ message DMChannel {
     int32 unread_count = 3;
     string last_message_text = 4;
     google.protobuf.Timestamp last_message_at = 5;
+}
+
+message GetPersonRequest {
+    string user_id = 1;
+}
+
+message GetPersonResponse {
+    Person person = 1;
 }
