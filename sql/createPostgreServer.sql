@@ -138,6 +138,21 @@ CREATE TABLE pinned_messages
     PRIMARY KEY (channel_id, message_id)
 );
 
+CREATE TABLE IF NOT EXISTS attachments
+(
+    id           UUID PRIMARY KEY,
+    uploader_id  UUID        NOT NULL,
+    channel_id   UUID        NOT NULL,
+    filename     TEXT        NOT NULL,
+    content_type TEXT        NOT NULL,
+    size_bytes   BIGINT      NOT NULL,
+    storage_key  TEXT        NOT NULL,
+    confirmed    BOOLEAN     NOT NULL DEFAULT FALSE,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_attachments_channel ON attachments (channel_id);
+
 -- Быстрая загрузка истории: последние сообщения канала
 CREATE INDEX idx_messages_channel_time ON messages (channel_id, created_at DESC);
 
