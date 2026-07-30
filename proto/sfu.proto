@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package axollot.sfu.v1;
+
+service SfuService {
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+  rpc CloseRoom(CloseRoomRequest) returns (CloseRoomResponse);
+
+  rpc CreateTransport(CreateTransportRequest) returns (CreateTransportResponse);
+  rpc ConnectTransport(ConnectTransportRequest) returns (ConnectTransportResponse);
+
+  rpc Produce(ProduceRequest) returns (ProduceResponse);
+  rpc Consume(ConsumeRequest) returns (ConsumeResponse);
+  rpc CloseProducer(CloseProducerRequest) returns (CloseProducerResponse);
+}
+
+message CreateRoomRequest {
+  string room_id = 1;
+}
+
+message CreateRoomResponse {
+  bool success = 1;
+  string router_rtp_capabilities = 2;
+}
+
+message CreateTransportRequest {
+  string room_id = 1;
+  string participant_id = 2;
+}
+
+message CreateTransportResponse {
+  string transport_id = 1;
+  string ice_parameters = 2;
+  string ice_candidates = 3;
+  string dtls_parameters = 4;
+}
+
+message ConnectTransportRequest {
+  string transport_id = 1;
+  string dtls_parameters = 2;
+}
+
+message ConnectTransportResponse {
+  bool success = 1;
+}
+
+message ProduceRequest {
+  string transport_id = 1;
+  string kind = 2;
+  string rtp_parameters = 3;
+}
+
+message ProduceResponse {
+  string producer_id = 1;
+}
+
+message ConsumeRequest {
+  string transport_id = 1;
+  string producer_id = 2;
+  string rtp_capabilities = 3;
+}
+
+message ConsumeResponse {
+  string consumer_id = 1;
+  string kind = 2;
+  string rtp_parameters = 3;
+}
+
+message CloseRoomRequest {
+  string room_id = 1;
+}
+
+message CloseRoomResponse {
+  bool success = 1;
+}
+
+message CloseProducerRequest {
+  string producer_id = 1;
+}
+
+message CloseProducerResponse {
+  bool success = 1;
+}
