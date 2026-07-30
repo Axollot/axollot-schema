@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package axollot.files.v1;
+
+import "common.proto";
+
+service FileService {
+  rpc RequestUploadUrl(RequestUploadUrlRequest) returns (RequestUploadUrlResponse);
+  rpc ConfirmUpload(ConfirmUploadRequest) returns (ConfirmUploadResponse);
+  rpc GetDownloadUrl(GetDownloadUrlRequest) returns (GetDownloadUrlResponse);
+}
+
+message RequestUploadUrlRequest {
+  string filename = 1;
+  string content_type = 2;
+  int64 size_bytes = 3;
+}
+
+message RequestUploadUrlResponse {
+  axollot.common.v1.Status status = 1;
+  string attachment_id = 2;
+  string upload_url = 3;
+}
+
+message ConfirmUploadRequest {
+  string attachment_id = 1;
+}
+
+message ConfirmUploadResponse {
+  axollot.common.v1.Status status = 1;
+}
+
+message GetDownloadUrlRequest {
+  string attachment_id = 1;
+}
+
+message GetDownloadUrlResponse {
+  axollot.common.v1.Status status = 1;
+  string download_url = 2;
+}

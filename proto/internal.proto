@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package axollot.internal.v1;
+
+service InternalAuthService {
+  rpc VerifySessionToken(VerifySessionTokenRequest) returns (VerifySessionTokenResponse);
+  rpc CheckChannelAccess(CheckChannelAccessRequest) returns (CheckChannelAccessResponse);
+}
+
+message VerifySessionTokenRequest {
+  string session_token = 1;
+}
+
+message VerifySessionTokenResponse {
+  bool valid = 1;
+  string user_id = 2;
+}
+
+message CheckChannelAccessRequest {
+  string user_id = 1;
+  string channel_id = 2;
+}
+
+message CheckChannelAccessResponse {
+  bool has_access = 1;
+}
