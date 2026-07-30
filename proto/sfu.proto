@@ -36,8 +36,10 @@ message CreateTransportResponse {
 }
 
 message ConnectTransportRequest {
-  string transport_id = 1;
-  string dtls_parameters = 2;
+  string room_id = 1;
+  string participant_id = 2;
+  string transport_id = 3;
+  string dtls_parameters = 4;
 }
 
 message ConnectTransportResponse {
@@ -45,9 +47,11 @@ message ConnectTransportResponse {
 }
 
 message ProduceRequest {
-  string transport_id = 1;
-  string kind = 2;
-  string rtp_parameters = 3;
+  string room_id = 1;
+  string participant_id = 2;
+  string transport_id = 3;
+  string kind = 4;
+  string rtp_parameters = 5;
 }
 
 message ProduceResponse {
@@ -55,9 +59,11 @@ message ProduceResponse {
 }
 
 message ConsumeRequest {
-  string transport_id = 1;
-  string producer_id = 2;
-  string rtp_capabilities = 3;
+  string room_id = 1;
+  string participant_id = 2;
+  string transport_id = 3;
+  string producer_id = 4;
+  string rtp_capabilities = 5;
 }
 
 message ConsumeResponse {
