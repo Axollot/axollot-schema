@@ -18,6 +18,14 @@ message SendMessage {
     string channel_id = 2;
     string text = 3;
     optional string reply_to_msg_id = 4;
+    repeated string attachment_ids = 5;
+}
+
+message Attachment {
+    string id = 1;
+    string filename = 2;
+    string content_type = 3;
+    int64 size_bytes = 4;
 }
 
 message MessageEvent {
@@ -28,6 +36,7 @@ message MessageEvent {
     google.protobuf.Timestamp created_at = 5;
     optional string reply_to_msg_id = 6;
     optional google.protobuf.Timestamp edited_at = 7;
+    repeated Attachment attachments = 8;
 }
 
 message GetChannelHistoryRequest {

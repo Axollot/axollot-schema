@@ -151,6 +151,13 @@ CREATE TABLE IF NOT EXISTS attachments
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS message_attachments
+(
+    message_id    UUID NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
+    attachment_id UUID NOT NULL,
+    PRIMARY KEY (message_id, attachment_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_attachments_channel ON attachments (channel_id);
 
 -- Быстрая загрузка истории: последние сообщения канала
