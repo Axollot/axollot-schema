@@ -153,8 +153,12 @@ CREATE TABLE IF NOT EXISTS attachments
 
 CREATE TABLE IF NOT EXISTS message_attachments
 (
-    message_id    UUID NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
-    attachment_id UUID NOT NULL,
+    message_id    UUID   NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
+    attachment_id UUID   NOT NULL,
+    filename      TEXT   NOT NULL,
+    content_type  TEXT   NOT NULL,
+    size_bytes    BIGINT NOT NULL,
+    position SMALLINT NOT NULL DEFAULT 0,
     PRIMARY KEY (message_id, attachment_id)
 );
 
