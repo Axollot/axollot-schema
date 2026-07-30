@@ -56,12 +56,12 @@ message MessageDeletedEvent {
 }
 
 message FriendRequestEvent {
-    axollot.people.v1.Person from = 1;
+    string from_user_id = 1;
 }
 
 message GuildMemberJoinedEvent {
     string guild_id = 1;
-    axollot.people.v1.Person member = 2;
+    string member_id = 2;
 }
 
 message GuildMemberLeftEvent {

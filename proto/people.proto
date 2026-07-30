@@ -7,7 +7,6 @@ import "google/protobuf/timestamp.proto";
 
 service PeopleService {
     rpc GetFriendList(GetFriendListRequest) returns (FriendListResponse);
-    rpc GetPersonInfo(GetPersonInfoRequest) returns (PersonInfoResponse);
     rpc AddFriend(AddFriendRequest) returns (AddFriendResponse);
     rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse);
     rpc AcceptFriend(AcceptFriendRequest) returns (AcceptFriendResponse);
@@ -15,7 +14,7 @@ service PeopleService {
     rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
     rpc OpenDM(OpenDMRequest) returns (OpenDMResponse);
     rpc GetDMList(GetDMListRequest) returns (DMListResponse);
-    rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
+    rpc GetUsersByIds(GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
 }
 
 enum FriendStatus {
@@ -48,14 +47,6 @@ message GetFriendListRequest {}
 
 message FriendListResponse {
     repeated Person people = 1;
-}
-
-message GetPersonInfoRequest {
-    string person_id = 1;
-}
-
-message PersonInfoResponse {
-    Person person = 1;
 }
 
 // --- Друзья ---
@@ -119,16 +110,16 @@ message DMListResponse {
 
 message DMChannel {
     string channel_id = 1;
-    Person other_user = 2;
+    string other_user_id = 2;
     int32 unread_count = 3;
     string last_message_text = 4;
     google.protobuf.Timestamp last_message_at = 5;
 }
 
-message GetPersonRequest {
-    string user_id = 1;
+message GetUsersByIdsRequest {
+    repeated string user_ids = 1;
 }
 
-message GetPersonResponse {
-    Person person = 1;
+message GetUsersByIdsResponse {
+    repeated Person users = 1;
 }

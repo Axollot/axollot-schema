@@ -200,7 +200,7 @@ message GetGuildMembersRequest {
 }
 
 message GuildMember {
-    axollot.people.v1.Person person = 1;
+    string user_id = 1;
     repeated Role roles = 6;
 }
 
