@@ -8,6 +8,7 @@ service FileService {
   rpc RequestUploadUrl(RequestUploadUrlRequest) returns (RequestUploadUrlResponse);
   rpc ConfirmUpload(ConfirmUploadRequest) returns (ConfirmUploadResponse);
   rpc GetDownloadUrl(GetDownloadUrlRequest) returns (GetDownloadUrlResponse);
+  rpc GetAttachmentsMetadata(GetAttachmentsMetadataRequest) returns (GetAttachmentsMetadataResponse);
 }
 
 message RequestUploadUrlRequest {
@@ -38,4 +39,19 @@ message GetDownloadUrlRequest {
 message GetDownloadUrlResponse {
   axollot.common.v1.Status status = 1;
   string download_url = 2;
+}
+
+message GetAttachmentsMetadataRequest {
+  repeated string attachment_ids = 1;
+}
+
+message AttachmentMetadata {
+  string id = 1;
+  string filename = 2;
+  string content_type = 3;
+  int64 size_bytes = 4;
+}
+
+message GetAttachmentsMetadataResponse {
+  repeated AttachmentMetadata attachments = 1;
 }
