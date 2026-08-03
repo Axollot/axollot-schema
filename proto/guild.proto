@@ -21,6 +21,12 @@ service GuildService {
     rpc UnassignRole(UnassignRoleRequest) returns (UnassignRoleResponse);
     rpc GetMemberRoles(GetMemberRolesRequest) returns (GetMemberRolesResponse);
     rpc GetGuildMembers(GetGuildMembersRequest) returns (GetGuildMembersResponse);
+    rpc KickMember(KickMemberRequest) returns (KickMemberResponse);
+    rpc BanMember(BanMemberRequest) returns (BanMemberResponse);
+    rpc UnbanMember(UnbanMemberRequest) returns (UnbanMemberResponse);
+    rpc ListBans(ListBansRequest) returns (ListBansResponse);
+    rpc GetMyPermissions(GetMyPermissionsRequest) returns (GetMyPermissionsResponse);
+
 }
 
 enum ChannelType {
@@ -206,4 +212,57 @@ message GuildMember {
 
 message GetGuildMembersResponse {
     repeated GuildMember members = 1;
+}
+
+message BanMemberRequest {
+    string guild_id = 1;
+    string user_id = 2;
+    optional string reason = 3;
+    optional int32 delete_message_seconds = 4;
+}
+
+message BanMemberResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message UnbanMemberRequest {
+    string guild_id = 1;
+    string user_id = 2;
+}
+
+message UnbanMemberResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message BanInfo {
+    string user_id = 1;
+    string banned_by_user_id = 2;
+    optional string reason = 3;
+    int64 created_at = 4;
+}
+message ListBansRequest {
+    string guild_id = 1;
+}
+
+message ListBansResponse {
+    repeated BanInfo bans = 1;
+}
+
+message KickMemberRequest {
+    string guild_id = 1;
+    string user_id = 2;
+    optional string reason = 3;
+}
+
+message KickMemberResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message GetMyPermissionsRequest {
+    string guild_id = 1;
+    optional string channel_id = 2;
+}
+
+message GetMyPermissionsResponse {
+    int64 permissions = 1;
 }

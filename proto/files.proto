@@ -15,7 +15,10 @@ message RequestUploadUrlRequest {
   string filename = 1;
   string content_type = 2;
   int64 size_bytes = 3;
-  string channel_id = 4;
+  oneof access_context {
+    string channel_id = 4;
+    string guild_id = 5;
+  }
 }
 
 message RequestUploadUrlResponse {

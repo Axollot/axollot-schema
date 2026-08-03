@@ -5,6 +5,7 @@ package axollot.internal.v1;
 service InternalAuthService {
   rpc VerifySessionToken(VerifySessionTokenRequest) returns (VerifySessionTokenResponse);
   rpc CheckChannelAccess(CheckChannelAccessRequest) returns (CheckChannelAccessResponse);
+  rpc CheckGuildPermission(CheckGuildPermissionRequest) returns (CheckGuildPermissionResponse);
 }
 
 message VerifySessionTokenRequest {
@@ -23,4 +24,13 @@ message CheckChannelAccessRequest {
 
 message CheckChannelAccessResponse {
   bool has_access = 1;
+}
+
+message CheckGuildPermissionRequest {
+  string user_id = 1;
+  string guild_id = 2;
+  int64 required_permission = 3;
+}
+message CheckGuildPermissionResponse {
+  bool has_permission = 1;
 }
