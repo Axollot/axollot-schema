@@ -153,13 +153,23 @@ CREATE TABLE IF NOT EXISTS attachments
 
 CREATE TABLE IF NOT EXISTS message_attachments
 (
-    message_id    UUID   NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
-    attachment_id UUID   NOT NULL,
-    filename      TEXT   NOT NULL,
-    content_type  TEXT   NOT NULL,
-    size_bytes    BIGINT NOT NULL,
-    position SMALLINT NOT NULL DEFAULT 0,
+    message_id    UUID     NOT NULL REFERENCES messages (id) ON DELETE CASCADE,
+    attachment_id UUID     NOT NULL,
+    filename      TEXT     NOT NULL,
+    content_type  TEXT     NOT NULL,
+    size_bytes    BIGINT   NOT NULL,
+    position      SMALLINT NOT NULL DEFAULT 0,
     PRIMARY KEY (message_id, attachment_id)
+);
+
+CREATE TABLE IF NOT EXISTS guild_bans
+(
+    guild_id   UUID        NOT NULL REFERENCES guilds (id) ON DELETE CASCADE,
+    user_id    UUID        NOT NULL,
+    banned_by  UUID        NOT NULL,
+    reason     TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (guild_id, user_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_attachments_channel ON attachments (channel_id);
