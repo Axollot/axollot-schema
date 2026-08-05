@@ -26,7 +26,7 @@ service GuildService {
     rpc UnbanMember(UnbanMemberRequest) returns (UnbanMemberResponse);
     rpc ListBans(ListBansRequest) returns (ListBansResponse);
     rpc GetMyPermissions(GetMyPermissionsRequest) returns (GetMyPermissionsResponse);
-
+    rpc UpdateGuild(UpdateGuildRequest) returns (UpdateGuildResponse);
 }
 
 enum ChannelType {
@@ -265,4 +265,16 @@ message GetMyPermissionsRequest {
 
 message GetMyPermissionsResponse {
     int64 permissions = 1;
+}
+
+message UpdateGuildRequest {
+    string guild_id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional string icon_attachment_id = 4;
+}
+
+message UpdateGuildResponse {
+    Guild guild = 1;
+    axollot.common.v1.Status status = 2;
 }
