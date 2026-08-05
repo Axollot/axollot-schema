@@ -13,7 +13,7 @@ import "people.proto";
 
 message Handshake {
     string session_token = 1;
-    optional int64 last_received_msg_id = 2;
+    optional string last_received_msg_id = 2;
 }
 
 message HandshakeAck {
