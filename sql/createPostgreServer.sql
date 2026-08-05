@@ -142,13 +142,18 @@ CREATE TABLE IF NOT EXISTS attachments
 (
     id           UUID PRIMARY KEY,
     uploader_id  UUID        NOT NULL,
-    channel_id   UUID        NOT NULL,
+    -- Вложение привязано либо к каналу, либо к гильдии (иконка/баннер сервера).
+    -- Ровно одна из колонок заполнена — см. CHECK ниже.
+    channel_id   UUID,
+    guild_id     UUID,
     filename     TEXT        NOT NULL,
     content_type TEXT        NOT NULL,
     size_bytes   BIGINT      NOT NULL,
     storage_key  TEXT        NOT NULL,
     confirmed    BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT attachments_access_context_check
+        CHECK (num_nonnulls(channel_id, guild_id) = 1)
 );
 
 CREATE TABLE IF NOT EXISTS message_attachments
@@ -173,6 +178,7 @@ CREATE TABLE IF NOT EXISTS guild_bans
 );
 
 CREATE INDEX IF NOT EXISTS idx_attachments_channel ON attachments (channel_id);
+CREATE INDEX IF NOT EXISTS idx_attachments_guild ON attachments (guild_id);
 
 -- Быстрая загрузка истории: последние сообщения канала
 CREATE INDEX idx_messages_channel_time ON messages (channel_id, created_at DESC);
@@ -197,6 +203,6 @@ CREATE INDEX idx_guild_invites_guild ON guild_invites (guild_id);
 
 CREATE INDEX idx_channels_parent ON channels (parent_id) WHERE parent_id IS NOT NULL;
 
-CREATE INDEX idx_member_roles_user ON member_roles (guild_id, user_id);
+    CREATE INDEX idx_member_roles_user ON member_roles (guild_id, user_id);
 
 CREATE INDEX idx_channel_overrides_channel ON channel_permission_overrides (channel_id);
