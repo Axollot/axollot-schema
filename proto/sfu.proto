@@ -81,7 +81,9 @@ message CloseRoomResponse {
 }
 
 message CloseProducerRequest {
-  string producer_id = 1;
+  string room_id = 1;
+  string participant_id = 2;
+  string producer_id = 3;
 }
 
 message CloseProducerResponse {
