@@ -103,6 +103,28 @@ message ReadStateUpdatedEvent {
     string last_read_message_id = 2;
 }
 
+message JoinVoiceChannel { string channel_id = 1; }
+message LeaveVoiceChannel { string channel_id = 1; }
+message VoiceTransportConnect { string transport_id = 1; string dtls_parameters = 2; }
+message VoiceProduce { string transport_id = 1; string kind = 2; string rtp_parameters = 3; }
+
+message VoiceTransportInfo {
+    string transport_id = 1;
+    string ice_parameters = 2;
+    string ice_candidates = 3;
+    string dtls_parameters = 4;
+    string direction = 5; // "send" или "recv"
+}
+message VoiceJoined {
+    string router_rtp_capabilities = 1;
+    repeated VoiceTransportInfo transports = 2; // send + recv transport info
+}
+message VoiceNewProducer { string user_id = 1; string producer_id = 2; string kind = 3; }
+message VoiceParticipantLeft { string user_id = 1; }
+
+message VoiceConsume { string producer_id = 1; string rtp_capabilities = 2; }
+message VoiceConsumerReady { string consumer_id = 1; string producer_id = 2; string kind = 3; string rtp_parameters = 4; }
+
 // Конверт для WebSocket — теперь только real-time
 message Packet {
     string request_id = 1;
@@ -138,6 +160,17 @@ message Packet {
         AppStateEvent app_state = 45;
 
         ReadStateUpdatedEvent read_state_update = 46;
+
+        // Voice
+        JoinVoiceChannel join_voice = 50;
+        LeaveVoiceChannel leave_voice = 51;
+        VoiceTransportConnect voice_transport_connect = 52;
+        VoiceProduce voice_produce = 53;
+        VoiceJoined voice_joined = 54;
+        VoiceNewProducer voice_new_producer = 55;
+        VoiceParticipantLeft voice_participant_left = 56;
+        VoiceConsume voice_consume = 57;
+        VoiceConsumerReady voice_consumer_ready = 58;
 
     }
 }
