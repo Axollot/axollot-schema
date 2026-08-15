@@ -124,6 +124,7 @@ message VoiceParticipantLeft { string user_id = 1; }
 
 message VoiceConsume { string producer_id = 1; string rtp_capabilities = 2; }
 message VoiceConsumerReady { string consumer_id = 1; string producer_id = 2; string kind = 3; string rtp_parameters = 4; }
+message VoiceProduceAck { string transport_id = 1; string producer_id = 2; }
 
 // Конверт для WebSocket — теперь только real-time
 message Packet {
@@ -171,6 +172,8 @@ message Packet {
         VoiceParticipantLeft voice_participant_left = 56;
         VoiceConsume voice_consume = 57;
         VoiceConsumerReady voice_consumer_ready = 58;
+
+        VoiceProduceAck voice_produce_ack = 59;
 
     }
 }
