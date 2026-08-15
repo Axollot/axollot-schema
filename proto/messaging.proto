@@ -11,6 +11,7 @@ service MessagingService {
     rpc PinMessage(PinMessageRequest) returns (PinMessageResponse);
     rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
     rpc EditMessage(EditMessageRequest) returns (EditMessageResponse);
+    rpc MarkChannelRead(MarkChannelReadRequest) returns (MarkChannelReadResponse);
 }
 
 message SendMessage {
@@ -85,4 +86,13 @@ message EditMessageRequest {
 message EditMessageResponse {
     axollot.common.v1.Status status = 1;
     optional MessageEvent message = 2;
+}
+
+message MarkChannelReadRequest {
+    string channel_id = 1;
+    string last_read_message_id = 2; // UUIDv7
+}
+
+message MarkChannelReadResponse {
+    axollot.common.v1.Status status = 1;
 }

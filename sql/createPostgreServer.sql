@@ -177,6 +177,15 @@ CREATE TABLE IF NOT EXISTS guild_bans
     PRIMARY KEY (guild_id, user_id)
 );
 
+CREATE TABLE IF NOT EXISTS channel_read_state
+(
+    user_id              UUID        NOT NULL,
+    channel_id           UUID        NOT NULL,
+    last_read_message_id UUID        NOT NULL,
+    updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, channel_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_attachments_channel ON attachments (channel_id);
 CREATE INDEX IF NOT EXISTS idx_attachments_guild ON attachments (guild_id);
 
@@ -203,6 +212,6 @@ CREATE INDEX idx_guild_invites_guild ON guild_invites (guild_id);
 
 CREATE INDEX idx_channels_parent ON channels (parent_id) WHERE parent_id IS NOT NULL;
 
-    CREATE INDEX idx_member_roles_user ON member_roles (guild_id, user_id);
+CREATE INDEX idx_member_roles_user ON member_roles (guild_id, user_id);
 
 CREATE INDEX idx_channel_overrides_channel ON channel_permission_overrides (channel_id);

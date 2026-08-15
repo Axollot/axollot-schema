@@ -20,6 +20,12 @@ message HandshakeAck {
     axollot.common.v1.Status status = 1;
     string user_id = 2;
     repeated axollot.messaging.v1.MessageEvent missed_messages = 3;
+    repeated ChannelReadStateEntry read_states = 4;
+}
+
+message ChannelReadStateEntry {
+    string channel_id = 1;
+    string last_read_message_id = 2;
 }
 
 message Ping {
@@ -92,6 +98,11 @@ message AppStateEvent {
     AppLifecycleState state = 1;
 }
 
+message ReadStateUpdatedEvent {
+    string channel_id = 1;
+    string last_read_message_id = 2;
+}
+
 // Конверт для WebSocket — теперь только real-time
 message Packet {
     string request_id = 1;
@@ -125,6 +136,8 @@ message Packet {
         ChannelUpdatedEvent channel_updated = 44;
 
         AppStateEvent app_state = 45;
+
+        ReadStateUpdatedEvent read_state_update = 46;
 
     }
 }
