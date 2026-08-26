@@ -126,6 +126,11 @@ message VoiceConsume { string producer_id = 1; string rtp_capabilities = 2; }
 message VoiceConsumerReady { string consumer_id = 1; string producer_id = 2; string kind = 3; string rtp_parameters = 4; }
 message VoiceProduceAck { string transport_id = 1; string producer_id = 2; }
 
+message VoiceChannelPresenceUpdate {
+    string channel_id = 1;
+    repeated string user_ids = 2;
+}
+
 // Конверт для WebSocket — теперь только real-time
 message Packet {
     string request_id = 1;
@@ -175,5 +180,6 @@ message Packet {
 
         VoiceProduceAck voice_produce_ack = 59;
 
+        VoiceChannelPresenceUpdate voice_presence_update = 60;
     }
 }
