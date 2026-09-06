@@ -163,6 +163,12 @@ enum CallEndReason {
 }
 message CallEnded { string call_id = 1; CallEndReason reason = 2; }
 
+// Ответ сервера инициатору сразу после CallUser - даёт call_id для последующего CancelCall
+message CallInitiated {
+    string call_id = 1;
+    string channel_id = 2;
+}
+
 // Конверт для WebSocket — теперь только real-time
 message Packet {
     string request_id = 1;
@@ -223,5 +229,6 @@ message Packet {
         CallDeclined call_declined = 67;
         CallCancelled call_cancelled = 68;
         CallEnded call_ended = 69;
+        CallInitiated call_initiated = 70;
     }
 }
