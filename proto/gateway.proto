@@ -131,6 +131,38 @@ message VoiceChannelPresenceUpdate {
     repeated string user_ids = 2;
 }
 
+// Инициация звонка
+message CallUser {
+    string channel_id = 1; // DM channel id
+}
+
+// Уведомление получателю о входящем звонке
+message IncomingCall {
+    string channel_id = 1;
+    string caller_id = 2;
+    string call_id = 3; // уникальный id этой попытки звонка
+    int64 initiated_at = 4;
+}
+
+// Ответ получателя
+message AnswerCall { string call_id = 1; }
+message DeclineCall { string call_id = 1; }
+
+// Инициатор отменяет пока ещё звонит (получатель не ответил)
+message CancelCall { string call_id = 1; }
+
+// Уведомление о том что звонок принят/отклонён/отменён - обеим сторонам
+message CallAccepted { string call_id = 1; }
+message CallDeclined { string call_id = 1; }
+message CallCancelled { string call_id = 1; }
+enum CallEndReason {
+    CALL_END_REASON_UNSPECIFIED = 0;
+    CALL_END_REASON_HANGUP = 1;
+    CALL_END_REASON_TIMEOUT = 2;
+    CALL_END_REASON_DECLINED = 3;
+}
+message CallEnded { string call_id = 1; CallEndReason reason = 2; }
+
 // Конверт для WebSocket — теперь только real-time
 message Packet {
     string request_id = 1;
@@ -181,5 +213,15 @@ message Packet {
         VoiceProduceAck voice_produce_ack = 59;
 
         VoiceChannelPresenceUpdate voice_presence_update = 60;
+
+        CallUser call_user = 61;
+        IncomingCall incoming_call = 62;
+        AnswerCall answer_call = 63;
+        DeclineCall decline_call = 64;
+        CancelCall cancel_call = 65;
+        CallAccepted call_accepted = 66;
+        CallDeclined call_declined = 67;
+        CallCancelled call_cancelled = 68;
+        CallEnded call_ended = 69;
     }
 }
