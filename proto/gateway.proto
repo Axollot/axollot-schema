@@ -11,6 +11,12 @@ import "people.proto";
 // WebSocket — ТОЛЬКО real-time события и хендшейк.
 // Всё что request/response (история, списки, CRUD) — через gRPC сервисы.
 
+enum MediaKind {
+    MEDIA_KIND_UNSPECIFIED = 0;
+    MEDIA_KIND_AUDIO = 1;
+    MEDIA_KIND_VIDEO = 2;
+}
+
 message Handshake {
     string session_token = 1;
     optional string last_received_msg_id = 2;
@@ -106,7 +112,30 @@ message ReadStateUpdatedEvent {
 message JoinVoiceChannel { string channel_id = 1; }
 message LeaveVoiceChannel { string channel_id = 1; }
 message VoiceTransportConnect { string transport_id = 1; string dtls_parameters = 2; }
-message VoiceProduce { string transport_id = 1; string kind = 2; string rtp_parameters = 3; }
+message VoiceProduce {
+    string transport_id = 1;
+    MediaKind kind = 2;
+    string rtp_parameters = 3;
+}
+
+message VoiceNewProducer {
+    string user_id = 1;
+    string producer_id = 2;
+    MediaKind kind = 3;
+}
+
+message VoiceConsumerReady {
+    string consumer_id = 1;
+    string producer_id = 2;
+    MediaKind kind = 3;
+    string rtp_parameters = 4;
+}
+
+message VoiceProducerClosed {
+    string user_id = 1;
+    string producer_id = 2;
+    MediaKind kind = 3;
+}
 
 message VoiceTransportInfo {
     string transport_id = 1;
@@ -119,11 +148,9 @@ message VoiceJoined {
     string router_rtp_capabilities = 1;
     repeated VoiceTransportInfo transports = 2; // send + recv transport info
 }
-message VoiceNewProducer { string user_id = 1; string producer_id = 2; string kind = 3; }
 message VoiceParticipantLeft { string user_id = 1; }
 
 message VoiceConsume { string producer_id = 1; string rtp_capabilities = 2; }
-message VoiceConsumerReady { string consumer_id = 1; string producer_id = 2; string kind = 3; string rtp_parameters = 4; }
 message VoiceProduceAck { string transport_id = 1; string producer_id = 2; }
 
 message VoiceChannelPresenceUpdate {
@@ -230,5 +257,7 @@ message Packet {
         CallCancelled call_cancelled = 68;
         CallEnded call_ended = 69;
         CallInitiated call_initiated = 70;
+
+        VoiceProducerClosed voice_producer_closed = 71;
     }
 }
