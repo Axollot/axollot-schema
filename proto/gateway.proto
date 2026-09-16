@@ -153,8 +153,11 @@ message VoiceJoined {
 message VoiceParticipantLeft { string user_id = 1; }
 
 message VoiceConsume { string producer_id = 1; string rtp_capabilities = 2; }
-message VoiceProduceAck { string transport_id = 1; string producer_id = 2; }
-
+message VoiceProduceAck {
+    string transport_id = 1;
+    string producer_id = 2;
+    MediaKind kind = 3;
+}
 message VoiceChannelPresenceUpdate {
     string channel_id = 1;
     repeated string user_ids = 2;
