@@ -137,6 +137,8 @@ message VoiceProducerClosed {
     MediaKind kind = 3;
 }
 
+message VoiceCloseProducer { string producer_id = 1; }
+
 message VoiceTransportInfo {
     string transport_id = 1;
     string ice_parameters = 2;
@@ -259,5 +261,6 @@ message Packet {
         CallInitiated call_initiated = 70;
 
         VoiceProducerClosed voice_producer_closed = 71;
+        VoiceCloseProducer voice_close_producer = 72;
     }
 }
