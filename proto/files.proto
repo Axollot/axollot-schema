@@ -18,7 +18,12 @@ message RequestUploadUrlRequest {
   oneof access_context {
     string channel_id = 4;
     string guild_id = 5;
+    AvatarUpload avatar = 6;
   }
+}
+
+message AvatarUpload {
+  
 }
 
 message RequestUploadUrlResponse {

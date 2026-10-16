@@ -15,6 +15,8 @@ service PeopleService {
     rpc OpenDM(OpenDMRequest) returns (OpenDMResponse);
     rpc GetDMList(GetDMListRequest) returns (DMListResponse);
     rpc GetUsersByIds(GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+    rpc GetMe(GetMeRequest) returns (GetMeResponse);
+    rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
 }
 
 enum FriendStatus {
@@ -34,11 +36,11 @@ enum OnlineStatus {
 
 message Person {
     string id = 1;
-    string public_username = 2;
-    string avatar_url = 3;
-    FriendStatus friend_status = 4;
+    string public_username = 2;      // отображаемое имя, можно менять
+    string avatar_url = 3;           // "" = нет аватара
+    FriendStatus friend_status = 4;  // относительно того, кто запрашивает
     OnlineStatus online_status = 5;
-    string username = 6;
+    string username = 6;             // логин-хэндл, уникальный, не меняется
 }
 
 // --- Списки ---
@@ -93,6 +95,8 @@ message UnblockUserResponse {
     axollot.common.v1.Status status = 1;
 }
 
+// --- DM ---
+
 message OpenDMRequest {
     string target_user_id = 1;
 }
@@ -122,4 +126,25 @@ message GetUsersByIdsRequest {
 
 message GetUsersByIdsResponse {
     repeated Person users = 1;
+}
+
+// --- Профиль ---
+
+message GetMeRequest {}
+
+message GetMeResponse {
+    Person person = 1;
+    string email = 2;
+    bool email_verified = 3;
+}
+
+message UpdateProfileRequest {
+    optional string public_username = 1;
+    // id загрузки с access_context = avatar (files.proto); "" = убрать аватар
+    optional string avatar_attachment_id = 2;
+}
+
+message UpdateProfileResponse {
+    axollot.common.v1.Status status = 1;
+    Person person = 2;
 }

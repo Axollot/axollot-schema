@@ -19,9 +19,9 @@ message Invite {
   string creator_id = 4;
   int32 uses = 5;
   optional int32 max_uses = 6;
-  optional int64 expires_at = 7;
+  optional int64 expires_at = 7; // unix-время, секунды; не задан = бессрочно
   string full_url = 8;
-  int64 created_at = 9;
+  int64 created_at = 9;          // unix-время, секунды
 }
 
 message InvitePreview {
@@ -38,7 +38,7 @@ message InvitePreview {
 message CreateInviteRequest {
   string guild_id = 1;
   optional int32 max_uses = 2;
-  optional int64 expires_at = 3;
+  optional int64 expires_at = 3; // unix-время, секунды
   optional string vanity_code = 4;
 }
 
