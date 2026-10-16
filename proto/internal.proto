@@ -29,8 +29,9 @@ message CheckChannelAccessResponse {
 message CheckGuildPermissionRequest {
   string user_id = 1;
   string guild_id = 2;
-  int64 required_permission = 3;
+  uint64 required_permission = 3; // битовая маска, см. guild.proto
 }
+
 message CheckGuildPermissionResponse {
   bool has_permission = 1;
 }

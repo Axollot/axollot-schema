@@ -4,13 +4,18 @@ package axollot.auth.v1;
 
 import "common.proto";
 
-// gRPC сервис — вызывается ДО установки WebSocket соединения.
-// Клиент получает session_token и дальше использует его 
+// gRPC сервис — Login/Register/VerifyEmail вызываются ДО установки WebSocket соединения.
+// Клиент получает session_token и дальше использует его
 // в Handshake при подключении к gateway.
+//
+// Logout и ChangePassword требуют session_token в metadata —
+// их нельзя добавлять в список исключений auth-интерцептора.
 service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc Register(RegisterRequest) returns (RegisterResponse);
     rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+    rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
 }
 
 message LoginRequest {
@@ -41,5 +46,23 @@ message VerifyEmailRequest {
 }
 
 message VerifyEmailResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+// Завершает текущую сессию (токен из metadata) и удаляет FCM-токен этой сессии.
+message LogoutRequest {}
+
+message LogoutResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+message ChangePasswordRequest {
+    string old_password = 1;
+    string new_password = 2;
+    // true — удалить все сессии (и их FCM-токены), кроме текущей
+    bool revoke_other_sessions = 3;
+}
+
+message ChangePasswordResponse {
     axollot.common.v1.Status status = 1;
 }

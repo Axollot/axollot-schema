@@ -10,6 +10,10 @@ import "people.proto";
 
 // WebSocket — ТОЛЬКО real-time события и хендшейк.
 // Всё что request/response (история, списки, CRUD) — через gRPC сервисы.
+//
+// Совместимость: и клиент, и сервер ОБЯЗАНЫ молча игнорировать пакет
+// с незнакомым payload и незнакомые значения enum (не падать, не рвать WS).
+// Новые события добавляются только новыми номерами в oneof.
 
 enum MediaKind {
     MEDIA_KIND_UNSPECIFIED = 0;
@@ -20,6 +24,8 @@ enum MediaKind {
 message Handshake {
     string session_token = 1;
     optional string last_received_msg_id = 2;
+    string client_version = 3;   // напр. "1.0.0"
+    uint32 protocol_version = 4; // 1 для Axollot 1.0
 }
 
 message HandshakeAck {
@@ -27,6 +33,10 @@ message HandshakeAck {
     string user_id = 2;
     repeated axollot.messaging.v1.MessageEvent missed_messages = 3;
     repeated ChannelReadStateEntry read_states = 4;
+    string server_version = 5;
+    uint32 protocol_version = 6;
+    // true — пропущенных сообщений больше лимита, клиент догружает историю через gRPC
+    bool missed_messages_truncated = 7;
 }
 
 message ChannelReadStateEntry {
@@ -43,16 +53,18 @@ message Pong {
     google.protobuf.Timestamp server_time = 2;
 }
 
-// --- Real-time события от сервера ---
+// Ответ на клиентский пакет, который сервер не смог обработать.
+// Packet.request_id и ErrorEvent.request_id = request_id исходного пакета.
+message ErrorEvent {
+    string request_id = 1;
+    axollot.common.v1.Status status = 2;
+}
+
+// --- Сообщения ---
 
 message TypingEvent {
     string channel_id = 1;
     string user_id = 2;
-}
-
-message PresenceEvent {
-    string user_id = 1;
-    axollot.people.v1.OnlineStatus status = 2;
 }
 
 message MessageEditedEvent {
@@ -67,18 +79,77 @@ message MessageDeletedEvent {
     string channel_id = 2;
 }
 
+message ReadStateUpdatedEvent {
+    string channel_id = 1;
+    string last_read_message_id = 2;
+}
+
+// --- Пользователи ---
+
+message PresenceEvent {
+    string user_id = 1;
+    axollot.people.v1.OnlineStatus status = 2;
+}
+
+// Смена имени/аватара. Шлётся всем, кто видит пользователя
+// (друзья, DM-собеседники, участники общих гильдий) и другим его сессиям.
+message UserUpdatedEvent {
+    string user_id = 1;
+    string public_username = 2;
+    string avatar_url = 3; // "" = нет аватара
+}
+
 message FriendRequestEvent {
     string from_user_id = 1;
 }
+
+// Изменение отношения с user_id с точки зрения получателя:
+// принятие заявки, удаление из друзей, отмена/отклонение заявки.
+// Блокировку получателю не сообщаем.
+message FriendshipUpdatedEvent {
+    string user_id = 1;
+    axollot.people.v1.FriendStatus status = 2;
+}
+
+// --- Гильдии ---
 
 message GuildMemberJoinedEvent {
     string guild_id = 1;
     string member_id = 2;
 }
 
+enum MemberLeaveReason {
+    MEMBER_LEAVE_REASON_UNSPECIFIED = 0;
+    MEMBER_LEAVE_REASON_LEFT = 1;
+    MEMBER_LEAVE_REASON_KICKED = 2;
+    MEMBER_LEAVE_REASON_BANNED = 3;
+}
+
 message GuildMemberLeftEvent {
     string guild_id = 1;
     string user_id = 2;
+    MemberLeaveReason reason = 3;
+}
+
+message GuildUpdatedEvent {
+    axollot.guild.v1.Guild guild = 1;
+}
+
+message GuildDeletedEvent {
+    string guild_id = 1;
+}
+
+// Создание/изменение/удаление/перестановка ролей гильдии.
+// Клиент перезапрашивает GetGuildRoles и GetMyPermissions.
+message GuildRolesChangedEvent {
+    string guild_id = 1;
+}
+
+// Роли участника изменились (AssignRole/UnassignRole).
+message MemberRolesChangedEvent {
+    string guild_id = 1;
+    string user_id = 2;
+    repeated string role_ids = 3; // полный актуальный список
 }
 
 message ChannelCreatedEvent {
@@ -94,6 +165,8 @@ message ChannelUpdatedEvent {
     axollot.guild.v1.Channel channel = 1;
 }
 
+// --- Состояние приложения ---
+
 enum AppLifecycleState {
     APP_LIFECYCLE_STATE_UNSPECIFIED = 0;
     APP_LIFECYCLE_STATE_FOREGROUND = 1;
@@ -104,10 +177,7 @@ message AppStateEvent {
     AppLifecycleState state = 1;
 }
 
-message ReadStateUpdatedEvent {
-    string channel_id = 1;
-    string last_read_message_id = 2;
-}
+// --- Voice ---
 
 message JoinVoiceChannel { string channel_id = 1; }
 message LeaveVoiceChannel { string channel_id = 1; }
@@ -163,6 +233,8 @@ message VoiceChannelPresenceUpdate {
     repeated string user_ids = 2;
 }
 
+// --- Звонки ---
+
 // Инициация звонка
 message CallUser {
     string channel_id = 1; // DM channel id
@@ -201,7 +273,7 @@ message CallInitiated {
     string channel_id = 2;
 }
 
-// Конверт для WebSocket — теперь только real-time
+// Конверт для WebSocket
 message Packet {
     string request_id = 1;
 
@@ -252,6 +324,7 @@ message Packet {
 
         VoiceChannelPresenceUpdate voice_presence_update = 60;
 
+        // Звонки
         CallUser call_user = 61;
         IncomingCall incoming_call = 62;
         AnswerCall answer_call = 63;
@@ -265,5 +338,16 @@ message Packet {
 
         VoiceProducerClosed voice_producer_closed = 71;
         VoiceCloseProducer voice_close_producer = 72;
+
+        // Ошибки
+        ErrorEvent error = 73;
+
+        // Пользователи / гильдии (1.0)
+        UserUpdatedEvent user_updated = 74;
+        FriendshipUpdatedEvent friendship_updated = 75;
+        GuildUpdatedEvent guild_updated = 76;
+        GuildDeletedEvent guild_deleted = 77;
+        GuildRolesChangedEvent guild_roles_changed = 78;
+        MemberRolesChangedEvent member_roles_changed = 79;
     }
 }

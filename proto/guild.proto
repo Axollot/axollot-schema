@@ -3,15 +3,22 @@ syntax = "proto3";
 package axollot.guild.v1;
 
 import "common.proto";
-import "people.proto";
+
+// Права — битовая маска uint64 (ADMINISTRATOR = 1 << 63).
+// uint64 и int64 совпадают на проводе, поэтому смена типа совместима
+// со старыми бинарниками; меняется только сгенерированный код (i64 -> u64).
 
 service GuildService {
     rpc GetGuildList(GetGuildListRequest) returns (GuildListResponse);
     rpc GetGuildChannels(GetGuildChannelsRequest) returns (GuildChannelsResponse);
     rpc CreateGuild(CreateGuildRequest) returns (CreateGuildResponse);
-    rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
-    rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+    rpc UpdateGuild(UpdateGuildRequest) returns (UpdateGuildResponse);
+    rpc DeleteGuild(DeleteGuildRequest) returns (DeleteGuildResponse);
     rpc LeaveGuild(LeaveGuildRequest) returns (LeaveGuildResponse);
+
+    rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse);
+    rpc UpdateChannel(UpdateChannelRequest) returns (UpdateChannelResponse);
+    rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
 
     rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse);
     rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse);
@@ -20,15 +27,17 @@ service GuildService {
     rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
     rpc UnassignRole(UnassignRoleRequest) returns (UnassignRoleResponse);
     rpc GetMemberRoles(GetMemberRolesRequest) returns (GetMemberRolesResponse);
+
     rpc GetGuildMembers(GetGuildMembersRequest) returns (GetGuildMembersResponse);
     rpc KickMember(KickMemberRequest) returns (KickMemberResponse);
     rpc BanMember(BanMemberRequest) returns (BanMemberResponse);
     rpc UnbanMember(UnbanMemberRequest) returns (UnbanMemberResponse);
     rpc ListBans(ListBansRequest) returns (ListBansResponse);
     rpc GetMyPermissions(GetMyPermissionsRequest) returns (GetMyPermissionsResponse);
-    rpc UpdateGuild(UpdateGuildRequest) returns (UpdateGuildResponse);
 }
 
+// NB: нулевое значение — TEXT, а не UNSPECIFIED. Оставлено ради совместимости
+// с данными в БД; канал без явного type считается текстовым.
 enum ChannelType {
     CHANNEL_TYPE_TEXT = 0;
     CHANNEL_TYPE_VOICE = 1;
@@ -43,6 +52,7 @@ message Guild {
     string description = 4;
     string owner_id = 5;
     int32 member_count = 6;
+    uint64 everyone_permissions = 7; // права роли @everyone
 }
 
 message Channel {
@@ -51,7 +61,7 @@ message Channel {
     string name = 3;
     ChannelType type = 4;
     int32 position = 5;
-    optional string parent_id = 6;
+    optional string parent_id = 6; // id категории; не задан = верхний уровень
 }
 
 // --- Списки ---
@@ -76,26 +86,7 @@ message GuildChannelsResponse {
     repeated VoiceChannelState voice_states = 2;
 }
 
-// --- Вступление / выход ---
-
-message JoinGuildRequest {
-    string guild_id = 1;
-}
-
-message JoinGuildResponse {
-    axollot.common.v1.Status status = 1;
-    Guild guild = 2;
-}
-
-message LeaveGuildRequest {
-    string guild_id = 1;
-}
-
-message LeaveGuildResponse {
-    axollot.common.v1.Status status = 1;
-}
-
-// --- Создание ---
+// --- Гильдия ---
 
 message CreateGuildRequest {
     string name = 1;
@@ -106,6 +97,39 @@ message CreateGuildResponse {
     axollot.common.v1.Status status = 1;
     Guild guild = 2;
 }
+
+message UpdateGuildRequest {
+    string guild_id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional string icon_attachment_id = 4;
+    optional uint64 everyone_permissions = 5; // требует MANAGE_ROLES
+}
+
+message UpdateGuildResponse {
+    Guild guild = 1;
+    axollot.common.v1.Status status = 2;
+}
+
+// Только владелец. Рассылает GuildDeletedEvent всем участникам.
+message DeleteGuildRequest {
+    string guild_id = 1;
+}
+
+message DeleteGuildResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+// Владелец выйти не может (ошибка) — сначала DeleteGuild.
+message LeaveGuildRequest {
+    string guild_id = 1;
+}
+
+message LeaveGuildResponse {
+    axollot.common.v1.Status status = 1;
+}
+
+// --- Каналы ---
 
 message CreateChannelRequest {
     string guild_id = 1;
@@ -119,6 +143,20 @@ message CreateChannelResponse {
     Channel channel = 2;
 }
 
+// Не заданные поля не меняются. Рассылает ChannelUpdatedEvent.
+message UpdateChannelRequest {
+    string guild_id = 1;
+    string channel_id = 2;
+    optional string name = 3;
+    optional int32 position = 4;
+    optional string parent_id = 5; // "" = вынести из категории
+}
+
+message UpdateChannelResponse {
+    axollot.common.v1.Status status = 1;
+    Channel channel = 2;
+}
+
 message DeleteChannelRequest {
     string channel_id = 1;
     string guild_id = 2;
@@ -128,19 +166,21 @@ message DeleteChannelResponse {
     axollot.common.v1.Status status = 1;
 }
 
+// --- Роли ---
+
 message Role {
     string id = 1;
     string guild_id = 2;
     string name = 3;
-    optional int32 color = 4;
-    int64 permissions = 5;
+    optional int32 color = 4; // 0xRRGGBB, без альфы
+    uint64 permissions = 5;
     int32 position = 6;
 }
 
 message CreateRoleRequest {
     string guild_id = 1;
     string name = 2;
-    int64 permissions = 3;
+    uint64 permissions = 3;
     optional int32 color = 4;
 }
 
@@ -152,7 +192,7 @@ message CreateRoleResponse {
 message UpdateRoleRequest {
     string role_id = 1;
     optional string name = 2;
-    optional int64 permissions = 3;
+    optional uint64 permissions = 3;
     optional int32 color = 4;
     optional int32 position = 5;
 }
@@ -207,17 +247,30 @@ message GetMemberRolesResponse {
     repeated Role roles = 1;
 }
 
+// --- Участники и модерация ---
+
 message GetGuildMembersRequest {
     string guild_id = 1;
 }
 
 message GuildMember {
+    reserved 2 to 5; // удалённые поля (раньше вложенный Person)
     string user_id = 1;
     repeated Role roles = 6;
 }
 
 message GetGuildMembersResponse {
     repeated GuildMember members = 1;
+}
+
+message KickMemberRequest {
+    string guild_id = 1;
+    string user_id = 2;
+    optional string reason = 3;
+}
+
+message KickMemberResponse {
+    axollot.common.v1.Status status = 1;
 }
 
 message BanMemberRequest {
@@ -244,8 +297,9 @@ message BanInfo {
     string user_id = 1;
     string banned_by_user_id = 2;
     optional string reason = 3;
-    int64 created_at = 4;
+    int64 created_at = 4; // unix-время, секунды
 }
+
 message ListBansRequest {
     string guild_id = 1;
 }
@@ -254,33 +308,11 @@ message ListBansResponse {
     repeated BanInfo bans = 1;
 }
 
-message KickMemberRequest {
-    string guild_id = 1;
-    string user_id = 2;
-    optional string reason = 3;
-}
-
-message KickMemberResponse {
-    axollot.common.v1.Status status = 1;
-}
-
 message GetMyPermissionsRequest {
     string guild_id = 1;
     optional string channel_id = 2;
 }
 
 message GetMyPermissionsResponse {
-    int64 permissions = 1;
-}
-
-message UpdateGuildRequest {
-    string guild_id = 1;
-    optional string name = 2;
-    optional string description = 3;
-    optional string icon_attachment_id = 4;
-}
-
-message UpdateGuildResponse {
-    Guild guild = 1;
-    axollot.common.v1.Status status = 2;
+    uint64 permissions = 1;
 }
